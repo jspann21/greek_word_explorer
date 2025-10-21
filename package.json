@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "next dev",
-    "build": "npm run preprocess && next build",
+    "build": "npm run preprocess && next build && node scripts/post-build.mjs",
     "prebuild": "node scripts/copy-sql-wasm.mjs",
     "preprocess": "node scripts/preprocess.mjs",
     "start": "next start",
