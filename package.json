@@ -1,0 +1,43 @@
+{
+  "name": "greek_word_explorer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "next dev",
+    "build": "npm run preprocess && next build",
+    "prebuild": "node scripts/copy-sql-wasm.mjs",
+    "preprocess": "node scripts/preprocess.mjs",
+    "start": "next start",
+    "deploy": "echo Deploy via GitHub Actions on push to main"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.15",
+    "@types/node": "^24.9.0",
+    "@types/react": "^19.2.2",
+    "@types/sql.js": "^1.4.9",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.38.0",
+    "eslint-config-next": "^15.5.6",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.15",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "next": "^15.5.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.3.0",
+    "sql.js": "^1.13.0",
+    "zod": "^4.1.12"
+  }
+}
