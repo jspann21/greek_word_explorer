@@ -22,16 +22,29 @@ export default function ConcordanceWidget({ lemma, pos_tag }: { lemma: string; p
   }, [lemma, selectedPos, query]);
 
   return (
-    <div className="border rounded p-3 space-y-2">
-      <div className="flex items-center gap-2">
-        <div className="text-sm">Filter POS:</div>
-        <input value={selectedPos} onChange={(e) => setSelectedPos(e.target.value)} className="border px-2 py-1 rounded text-sm" placeholder="e.g., NNSM" />
-        <div className="text-xs text-gray-500">{rows.length} hits</div>
+    <div className="bg-card border rounded-lg p-5 shadow-sm">
+      <h3 className="text-sm font-semibold text-foreground mb-1">Concordance</h3>
+      <p className="text-xs text-muted-foreground mb-4">All occurrences of this lemma in context</p>
+      <div className="flex items-center gap-3 mb-4">
+        <input 
+          value={selectedPos} 
+          onChange={(e) => setSelectedPos(e.target.value)} 
+          className="flex-1 h-9 rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all" 
+          placeholder="Filter by POS (e.g., NNSM)" 
+        />
+        <div className="text-xs px-3 py-1.5 bg-primary/10 text-primary font-medium rounded-md whitespace-nowrap">
+          {rows.length} {rows.length === 1 ? 'occurrence' : 'occurrences'}
+        </div>
       </div>
-      <div className="max-h-64 overflow-auto divide-y">
-        {rows.map((r) => (
+      <div className="max-h-96 overflow-auto space-y-3">
+        {rows.slice(0, 50).map((r) => (
           <ConcordanceRow key={r.id} id={r.id} heading={`${r.book_name} ${r.chapter}:${r.verse}`} />
         ))}
+        {rows.length > 50 && (
+          <div className="text-xs text-center text-muted-foreground py-2 border-t">
+            Showing first 50 of {rows.length} occurrences
+          </div>
+        )}
       </div>
     </div>
   );
@@ -47,11 +60,11 @@ function ConcordanceRow({ id, heading }: { id: number; heading: string }) {
     return words;
   }, [id, query]);
   return (
-    <div className="py-2 text-sm">
-      <div className="font-medium mb-1">{heading}</div>
-      <div className="whitespace-pre-wrap">
+    <div className="py-3 px-3 rounded-md hover:bg-muted/30 transition-colors">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{heading}</div>
+      <div className="text-sm leading-relaxed font-serif" style={{ fontFamily: "'Gentium Plus', 'Times New Roman', serif" }}>
         {context.map((w) => (
-          <span key={w.id} className={w.id === id ? 'bg-yellow-200 px-0.5 rounded' : ''}>
+          <span key={w.id} className={w.id === id ? 'bg-primary/20 px-1 py-0.5 rounded font-semibold' : ''}>
             {w.word_form}{' '}
           </span>
         ))}

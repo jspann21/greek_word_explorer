@@ -23,28 +23,34 @@ export default function BookChapterSelector() {
   const chapterCount = selected?.chapters ?? 1;
 
   return (
-    <div className="flex items-center gap-2">
-      <select
-        className="border rounded px-2 py-1"
-        value={book}
-        onChange={(e) => {
-          const nextBook = e.target.value;
-          router.push(`/${nextBook}/1`);
-        }}
-      >
-        {books.map((b) => (
-          <option key={b.name} value={b.name}>{b.name}</option>
-        ))}
-      </select>
-      <select
-        className="border rounded px-2 py-1"
-        value={chapter}
-        onChange={(e) => router.push(`/${book}/${e.target.value}`)}
-      >
-        {Array.from({ length: chapterCount }, (_, i) => String(i + 1)).map((c) => (
-          <option key={c} value={c}>{c}</option>
-        ))}
-      </select>
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium text-muted-foreground">Book</label>
+        <select
+          className="h-10 rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+          value={book}
+          onChange={(e) => {
+            const nextBook = e.target.value;
+            router.push(`/${nextBook}/1`);
+          }}
+        >
+          {books.map((b) => (
+            <option key={b.name} value={b.name}>{b.name}</option>
+          ))}
+        </select>
+      </div>
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium text-muted-foreground">Chapter</label>
+        <select
+          className="h-10 rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+          value={chapter}
+          onChange={(e) => router.push(`/${book}/${e.target.value}`)}
+        >
+          {Array.from({ length: chapterCount }, (_, i) => String(i + 1)).map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

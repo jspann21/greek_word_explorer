@@ -6,26 +6,43 @@ import { useSelection } from '@/components/providers/SelectionProvider';
 
 export default function TextPanel({ paragraphs }: { paragraphs: Paragraph[] }) {
   const [currentVerse, setCurrentVerse] = useState<string>('');
-  const { setSelectedWordId } = useSelection();
+  const { selectedWordId, setSelectedWordId } = useSelection();
+  
   return (
-    <section className="prose max-w-none">
-      {paragraphs.map((paragraph, pIdx) => (
-        <p key={pIdx} className="mb-4 leading-8">
-          {paragraph.map((word) => (
-            <span
-              key={word.word_id}
-              onClick={() => setSelectedWordId(word.word_id)}
-              className="cursor-pointer hover:bg-yellow-200 rounded px-0.5"
-            >
-              {word.verse !== currentVerse && (
-                <sup className="mr-1" onMouseEnter={() => setCurrentVerse(word.verse)}>{word.verse}</sup>
-              )}
-              {word.text}{' '}
-            </span>
+    <div className="flex-1 bg-white border-r shadow-sm overflow-y-auto">
+      <div className="max-w-3xl mx-auto px-8 py-12">
+        <div className="greek-text space-y-6">
+          {paragraphs.map((paragraph, pIdx) => (
+            <p key={pIdx} className="text-justify leading-relaxed">
+              {paragraph.map((word) => {
+                const isSelected = selectedWordId === word.word_id;
+                const showVerse = word.verse !== currentVerse;
+                
+                return (
+                  <span key={word.word_id} className="inline-block">
+                    {showVerse && (
+                      <sup 
+                        className="verse-number"
+                        onMouseEnter={() => setCurrentVerse(word.verse)}
+                      >
+                        {word.verse}
+                      </sup>
+                    )}
+                    <span
+                      onClick={() => setSelectedWordId(word.word_id)}
+                      className={`greek-word ${isSelected ? 'greek-word-selected' : ''}`}
+                    >
+                      {word.text}
+                    </span>
+                    {' '}
+                  </span>
+                );
+              })}
+            </p>
           ))}
-        </p>
-      ))}
-    </section>
+        </div>
+      </div>
+    </div>
   );
 }
 

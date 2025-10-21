@@ -17,15 +17,19 @@ export default function LemmaDistWidget({ lemma }: { lemma: string }) {
     setData(rows);
   }, [lemma, query]);
   return (
-    <div className="border rounded p-3">
-      <div className="text-sm mb-2">Distribution by parsing for lemma: <span className="font-medium">{lemma}</span></div>
-      <ResponsiveContainer width="100%" height={240}>
+    <div className="bg-card border rounded-lg p-5 shadow-sm">
+      <h3 className="text-sm font-semibold text-foreground mb-1">Form Distribution</h3>
+      <p className="text-xs text-muted-foreground mb-4">How this lemma appears across different grammatical forms</p>
+      <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="pos_tag" tick={{ fontSize: 12 }} />
-          <YAxis />
-          <Tooltip formatter={(v: any, n: any, p: any) => n === 'count' ? v : interpretPosTag(p.payload.pos_tag)} />
-          <Bar dataKey="count" fill="#3b82f6" />
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+          <XAxis dataKey="pos_tag" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
+          <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
+          <Tooltip 
+            formatter={(v: any, n: any, p: any) => n === 'count' ? v : interpretPosTag(p.payload.pos_tag)}
+            contentStyle={{ background: 'white', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
+          />
+          <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
