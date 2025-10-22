@@ -10,7 +10,7 @@ export default function TextPanel({ paragraphs }: { paragraphs: Paragraph[] }) {
   
   return (
     <div className="flex-1 bg-white border-r shadow-sm overflow-y-auto">
-      <div className="max-w-3xl mx-auto px-8 py-12">
+      <div className="w-full px-8 py-12">
         <div className="greek-text space-y-6">
           {paragraphs.map((paragraph, pIdx) => (
             <p key={pIdx} className="text-justify leading-relaxed">

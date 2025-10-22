@@ -19,9 +19,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ book: 
 
   return (
     <>
-      <div>
-        <TextPanel paragraphs={chapterData.paragraphs} />
-      </div>
+      <TextPanel paragraphs={chapterData.paragraphs} />
       <AnalysisPanel />
     </>
   );
