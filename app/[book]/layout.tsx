@@ -6,9 +6,9 @@ export default function BookLayout({ children }: { children: React.ReactNode }) 
   return (
     <SqlProvider>
       <SelectionProvider>
-        <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 to-blue-50/30">
+        <div className="h-screen flex flex-col bg-background">
           <Header />
-          <main className="flex-1 flex overflow-hidden">
+          <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
             {children}
           </main>
         </div>
@@ -16,5 +16,3 @@ export default function BookLayout({ children }: { children: React.ReactNode }) 
     </SqlProvider>
   );
 }
-
-

@@ -8,10 +8,11 @@ import LemmaDistWidget from './LemmaDistWidget';
 import ConcordanceWidget from './ConcordanceWidget';
 import CollocationWidget from './CollocationWidget';
 import { useSelection } from '@/components/providers/SelectionProvider';
+import { MousePointerClick, X } from 'lucide-react';
 
 export default function AnalysisPanel() {
   const { query } = useDatabase();
-  const { selectedWordId } = useSelection();
+  const { selectedWordId, setSelectedWordId } = useSelection();
   const [word, setWord] = useState<WordRow | null>(null);
 
   useEffect(() => {
@@ -22,16 +23,14 @@ export default function AnalysisPanel() {
 
   if (!word) {
     return (
-      <aside className="w-[520px] bg-gradient-to-br from-slate-50 to-blue-50 overflow-y-auto p-8">
-        <div className="flex flex-col items-center justify-center h-full text-center">
-          <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-            <svg className="w-12 h-12 text-primary/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-            </svg>
+      <aside className="w-[350px] lg:w-[450px] bg-muted/10 border-l border-border overflow-y-auto hidden md:block h-full">
+        <div className="flex flex-col items-center justify-center h-full text-center px-8">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
+            <MousePointerClick className="w-8 h-8 text-primary/60" />
           </div>
-          <h3 className="text-xl font-semibold text-foreground/80 mb-2">Select a Word</h3>
-          <p className="text-sm text-muted-foreground max-w-xs">
-            Click on any Greek word in the text to view detailed grammatical analysis and usage statistics.
+          <h3 className="text-lg font-bold text-foreground mb-2">Select a Word</h3>
+          <p className="text-sm text-muted-foreground max-w-[250px] leading-relaxed">
+            Click on any Greek word in the text to view detailed grammatical analysis, charts, and usage statistics.
           </p>
         </div>
       </aside>
@@ -39,8 +38,15 @@ export default function AnalysisPanel() {
   }
 
   return (
-    <aside className="w-[520px] bg-white overflow-y-auto">
-      <div className="p-6 space-y-6">
+    <aside className="w-full h-[45vh] md:h-full md:w-[350px] lg:w-[450px] bg-background border-t md:border-t-0 md:border-l border-border overflow-y-auto shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.05)] z-20 flex flex-col">
+      <div className="p-6 space-y-6 relative flex-1">
+        <button
+          onClick={() => setSelectedWordId(null)}
+          className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground md:hidden bg-background/80 backdrop-blur-sm rounded-full border border-border/50 shadow-sm z-30"
+          aria-label="Close"
+        >
+          <X className="w-5 h-5" />
+        </button>
         <WordDetailWidget word={word} />
         <LemmaDistWidget lemma={word.lemma} />
         <CollocationWidget lemma={word.lemma} />
@@ -49,5 +55,3 @@ export default function AnalysisPanel() {
     </aside>
   );
 }
-
-
