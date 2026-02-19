@@ -8,32 +8,66 @@ import { interpretPosTag } from '@/lib/parsing';
 export default function LemmaDistWidget({ lemma }: { lemma: string }) {
   const { query } = useDatabase();
   const [data, setData] = useState<{ pos_tag: string; count: number }[]>([]);
+
   useEffect(() => {
     if (!lemma) { setData([]); return; }
     const rows = query<{ pos_tag: string; count: number }>(
-      'SELECT pos_tag, COUNT(id) as count FROM words WHERE lemma = ? GROUP BY pos_tag ORDER BY count DESC',
+      'SELECT pos_tag, COUNT(id) as count FROM words WHERE lemma = ? GROUP BY pos_tag ORDER BY count DESC LIMIT 15',
       [lemma]
     );
     setData(rows);
   }, [lemma, query]);
+
+  if (data.length === 0) return null;
+
   return (
-    <div className="bg-card border rounded-lg p-5 shadow-sm">
-      <h3 className="text-sm font-semibold text-foreground mb-1">Form Distribution</h3>
-      <p className="text-xs text-muted-foreground mb-4">How this lemma appears across different grammatical forms</p>
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-          <XAxis dataKey="pos_tag" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
-          <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
-          <Tooltip 
-            formatter={(v: any, n: any, p: any) => n === 'count' ? v : interpretPosTag(p.payload.pos_tag)}
-            contentStyle={{ background: 'white', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
-          />
-          <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-sm font-bold text-foreground">Form Distribution</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Frequency by grammatical form</p>
+        </div>
+      </div>
+
+      <div className="h-[200px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+            <XAxis
+              dataKey="pos_tag"
+              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+              axisLine={{ stroke: 'hsl(var(--border))' }}
+              tickLine={false}
+              interval={0}
+            />
+            <YAxis
+              tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip
+              cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
+              formatter={(v: any, n: any, p: any) => [v, interpretPosTag(p.payload.pos_tag)]}
+              contentStyle={{
+                backgroundColor: 'hsl(var(--card))',
+                borderColor: 'hsl(var(--border))',
+                borderRadius: '8px',
+                fontSize: '12px',
+                color: 'hsl(var(--foreground))',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+              }}
+              itemStyle={{ color: 'hsl(var(--foreground))' }}
+              labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '0.25rem' }}
+            />
+            <Bar
+              dataKey="count"
+              fill="hsl(var(--primary))"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={40}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
-
-

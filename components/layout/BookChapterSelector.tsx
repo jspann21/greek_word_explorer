@@ -25,9 +25,9 @@ export default function BookChapterSelector() {
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-muted-foreground">Book</label>
+        <label className="text-sm font-medium text-muted-foreground hidden sm:block">Book</label>
         <select
-          className="h-10 rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+          className="h-10 rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
           value={book}
           onChange={(e) => {
             const nextBook = e.target.value;
@@ -40,9 +40,9 @@ export default function BookChapterSelector() {
         </select>
       </div>
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-muted-foreground">Chapter</label>
+        <label className="text-sm font-medium text-muted-foreground hidden sm:block">Chapter</label>
         <select
-          className="h-10 rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+          className="h-10 rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
           value={chapter}
           onChange={(e) => router.push(`/${book}/${e.target.value}`)}
         >
@@ -54,5 +54,3 @@ export default function BookChapterSelector() {
     </div>
   );
 }
-
-
