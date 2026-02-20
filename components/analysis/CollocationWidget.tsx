@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useDatabase } from '@/hooks/useDatabase';
+import { Maximize2 } from 'lucide-react';
+import Modal from '@/components/ui/Modal';
+import CollocationDetailed from './CollocationDetailed';
 
 interface Colloc { lemma: string; count: number }
 
@@ -9,6 +12,7 @@ export default function CollocationWidget({ lemma }: { lemma: string }) {
   const { query } = useDatabase();
   const [prevs, setPrevs] = useState<Colloc[]>([]);
   const [nexts, setNexts] = useState<Colloc[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!lemma) { setPrevs([]); setNexts([]); return; }
@@ -35,42 +39,53 @@ export default function CollocationWidget({ lemma }: { lemma: string }) {
   if (prevs.length === 0 && nexts.length === 0) return null;
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-      <div className="mb-4">
-        <h3 className="text-sm font-bold text-foreground">Common Collocations</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">Words appearing frequently nearby</p>
-      </div>
+    <>
+      <div
+        onClick={() => setIsModalOpen(true)}
+        className="bg-card border border-border rounded-xl p-5 shadow-sm group hover:ring-2 hover:ring-primary/40 transition-all cursor-pointer relative"
+      >
+        <div className="absolute top-4 right-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+          <Maximize2 className="w-4 h-4" />
+        </div>
+        <div className="mb-4 pr-6">
+          <h3 className="text-sm font-bold text-foreground">Common Collocations</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Words appearing frequently nearby</p>
+        </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="h-1 w-1 bg-primary rounded-full"></span>
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Preceding</span>
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="h-1 w-1 bg-primary rounded-full"></span>
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Preceding</span>
+            </div>
+            <ul className="space-y-1">
+              {prevs.map((c) => (
+                <li key={`p-${c.lemma}`} className="flex justify-between items-center group py-1 border-b border-border/50 last:border-0">
+                  <span className="font-serif text-foreground group-hover:text-primary transition-colors">{c.lemma}</span>
+                  <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full font-medium">{c.count}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="space-y-1">
-            {prevs.map((c) => (
-              <li key={`p-${c.lemma}`} className="flex justify-between items-center group py-1 border-b border-border/50 last:border-0">
-                <span className="font-serif text-foreground group-hover:text-primary transition-colors">{c.lemma}</span>
-                <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full font-medium">{c.count}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="h-1 w-1 bg-primary rounded-full"></span>
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Following</span>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="h-1 w-1 bg-primary rounded-full"></span>
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Following</span>
+            </div>
+            <ul className="space-y-1">
+              {nexts.map((c) => (
+                <li key={`n-${c.lemma}`} className="flex justify-between items-center group py-1 border-b border-border/50 last:border-0">
+                  <span className="font-serif text-foreground group-hover:text-primary transition-colors">{c.lemma}</span>
+                  <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full font-medium">{c.count}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="space-y-1">
-            {nexts.map((c) => (
-              <li key={`n-${c.lemma}`} className="flex justify-between items-center group py-1 border-b border-border/50 last:border-0">
-                <span className="font-serif text-foreground group-hover:text-primary transition-colors">{c.lemma}</span>
-                <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full font-medium">{c.count}</span>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
-    </div>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Detailed Collocations">
+        <CollocationDetailed lemma={lemma} />
+      </Modal>
+    </>
   );
 }
