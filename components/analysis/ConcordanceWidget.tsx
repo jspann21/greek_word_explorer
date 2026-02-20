@@ -16,13 +16,31 @@ export default function ConcordanceWidget({ lemma, pos_tag }: { lemma: string; p
 
   useEffect(() => setSelectedPos(pos_tag || ''), [pos_tag]);
 
+  const CANONICAL_ORDER = [
+    "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1Corinthians", "2Corinthians",
+    "Galatians", "Ephesians", "Philippians", "Colossians", "1Thessalonians", "2Thessalonians",
+    "1Timothy", "2Timothy", "Titus", "Philemon", "Hebrews", "James", "1Peter", "2Peter",
+    "1John", "2John", "3John", "Jude", "Revelation"
+  ];
+
   useEffect(() => {
     if (!lemma) { setRows([]); return; }
     const args: any[] = [lemma];
     let sql = 'SELECT id, book_name, chapter, verse FROM words WHERE lemma = ?';
     if (selectedPos) { sql += ' AND pos_tag = ?'; args.push(selectedPos); }
     sql += ' ORDER BY book_name, chapter, verse, id';
-    setRows(query<Row>(sql, args));
+
+    const result = query<Row>(sql, args);
+    result.sort((a, b) => {
+      const aIdx = CANONICAL_ORDER.indexOf(a.book_name);
+      const bIdx = CANONICAL_ORDER.indexOf(b.book_name);
+      const aNum = aIdx === -1 ? 999 : aIdx;
+      const bNum = bIdx === -1 ? 999 : bIdx;
+      if (aNum !== bNum) return aNum - bNum;
+      return 0;
+    });
+
+    setRows(result);
   }, [lemma, selectedPos, query]);
 
   return (

@@ -5,6 +5,13 @@ import { useDatabase } from '@/hooks/useDatabase';
 
 interface Row { id: number; book_name: string; chapter: number; verse: number; }
 
+const CANONICAL_ORDER = [
+    "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1Corinthians", "2Corinthians",
+    "Galatians", "Ephesians", "Philippians", "Colossians", "1Thessalonians", "2Thessalonians",
+    "1Timothy", "2Timothy", "Titus", "Philemon", "Hebrews", "James", "1Peter", "2Peter",
+    "1John", "2John", "3John", "Jude", "Revelation"
+];
+
 export default function ConcordanceDetailed({ lemma, pos_tag }: { lemma: string; pos_tag?: string }) {
     const { query } = useDatabase();
     const [rows, setRows] = useState<Row[]>([]);
@@ -15,7 +22,18 @@ export default function ConcordanceDetailed({ lemma, pos_tag }: { lemma: string;
         let sql = 'SELECT id, book_name, chapter, verse FROM words WHERE lemma = ?';
         if (pos_tag) { sql += ' AND pos_tag = ?'; args.push(pos_tag); }
         sql += ' ORDER BY book_name, chapter, verse, id';
-        setRows(query<Row>(sql, args));
+
+        const result = query<Row>(sql, args);
+        result.sort((a, b) => {
+            const aIdx = CANONICAL_ORDER.indexOf(a.book_name);
+            const bIdx = CANONICAL_ORDER.indexOf(b.book_name);
+            const aNum = aIdx === -1 ? 999 : aIdx;
+            const bNum = bIdx === -1 ? 999 : bIdx;
+            if (aNum !== bNum) return aNum - bNum;
+            return 0;
+        });
+
+        setRows(result);
     }, [lemma, pos_tag, query]);
 
     const groupedRows = useMemo(() => {
