@@ -16,7 +16,7 @@ export default function WordDetailWidget({ word }: { word: WordRow }) {
           </span>
         )}
       </div>
-      
+
       <div className="text-center mb-8">
         <div className="text-5xl font-serif text-foreground mb-2 leading-tight">
           {word.word_form}
@@ -25,16 +25,24 @@ export default function WordDetailWidget({ word }: { word: WordRow }) {
           {word.lemma}
         </div>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2 bg-muted/30 rounded-lg p-3 border border-border/50">
           <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Gloss</div>
           <div className="text-base font-medium text-foreground">{word.gloss}</div>
         </div>
-        
+
         <div className="col-span-2 bg-muted/30 rounded-lg p-3 border border-border/50">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Morphology</div>
-          <div className="text-sm text-foreground/90">{interpretPosTag(word.pos_tag)}</div>
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Morphology</div>
+          <div className="flex items-center gap-3">
+            <span
+              className="px-2 py-1 bg-primary/10 text-primary font-bold text-xs rounded border border-primary/20 cursor-help"
+              title={interpretPosTag(word.pos_tag)}
+            >
+              {word.pos_tag}
+            </span>
+            <span className="text-sm text-foreground/90">{interpretPosTag(word.pos_tag)}</span>
+          </div>
         </div>
       </div>
     </div>

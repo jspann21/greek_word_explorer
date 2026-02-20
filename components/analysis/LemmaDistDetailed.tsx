@@ -103,8 +103,12 @@ export default function LemmaDistDetailed({ lemma }: { lemma: string }) {
                     <div key={g.pos_tag} className="bg-muted/10 border border-border/50 rounded-xl p-5">
                         <div className="flex justify-between items-start mb-4">
                             <div>
-                                <h4 className="font-bold text-foreground text-sm">{g.pos_tag}</h4>
-                                <p className="text-xs text-muted-foreground mt-1 max-w-[200px] leading-relaxed">{g.description}</p>
+                                <h4 className="font-bold text-foreground text-sm cursor-help w-fit" title={g.description}>
+                                    {g.pos_tag}
+                                </h4>
+                                <p className="text-xs text-muted-foreground mt-1 max-w-[200px] leading-relaxed">
+                                    {g.description}
+                                </p>
                             </div>
                             <div className="px-2 py-0.5 bg-primary/10 text-primary font-bold rounded-full text-xs">
                                 {g.total}

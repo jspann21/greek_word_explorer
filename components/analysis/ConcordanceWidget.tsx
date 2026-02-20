@@ -5,6 +5,7 @@ import { useDatabase } from '@/hooks/useDatabase';
 import { Maximize2 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import ConcordanceDetailed from './ConcordanceDetailed';
+import { interpretPosTag } from '@/lib/parsing';
 
 interface Row { id: number; book_name: string; chapter: number; verse: number; }
 
@@ -70,6 +71,14 @@ export default function ConcordanceWidget({ lemma, pos_tag }: { lemma: string; p
             className="w-full h-9 rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
             placeholder="Filter by POS (e.g., NNSM)"
           />
+          {selectedPos && (
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-xs text-muted-foreground font-medium">Filtering for: </span>
+              <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] uppercase tracking-wider font-bold rounded">
+                {interpretPosTag(selectedPos)}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="max-h-[400px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
