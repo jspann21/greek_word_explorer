@@ -2,15 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useDatabase } from '@/hooks/useDatabase';
+import { CANONICAL_ORDER } from '@/lib/constants';
 
 interface Row { id: number; book_name: string; chapter: number; verse: number; }
-
-const CANONICAL_ORDER = [
-    "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1Corinthians", "2Corinthians",
-    "Galatians", "Ephesians", "Philippians", "Colossians", "1Thessalonians", "2Thessalonians",
-    "1Timothy", "2Timothy", "Titus", "Philemon", "Hebrews", "James", "1Peter", "2Peter",
-    "1John", "2John", "3John", "Jude", "Revelation"
-];
 
 export default function ConcordanceDetailed({ lemma, pos_tag }: { lemma: string; pos_tag?: string }) {
     const { query } = useDatabase();
