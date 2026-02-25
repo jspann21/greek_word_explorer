@@ -1,25 +1,45 @@
+import type { WordRow } from './types';
+
+export function getWordDetailData(word: WordRow) {
+  return {
+    reference: `${word.book_name} ${word.chapter}:${word.verse}`,
+    strongsDisplay: word.strongs ? `G${word.strongs}` : null,
+    wordForm: word.word_form,
+    lemma: word.lemma,
+    gloss: word.gloss,
+    posTag: word.pos_tag,
+    posDescription: interpretPosTag(word.pos_tag)
+  };
+}
+
 export function interpretPosTag(rawTag: string): string {
   if (!rawTag) return '';
   return rawTag.split(',').map(t => interpretSingleTag(t.trim())).join('; ');
 }
 
-function interpretSingleTag(tag: string): string {
-  if (!tag) return '';
-  if (tag === 'P') return 'Preposition';
-  if (tag === 'I') return 'Interjection';
+function interpretSingleTag(rawTag: string): string {
+  if (!rawTag) return '';
 
-  let result = [];
+  // Normalize by removing dashes
+  const tag = rawTag.replace(/-/g, '');
+  if (!tag) return rawTag;
 
-  // POS
   const posIndicator = tag.charAt(0);
-  const isVerb = posIndicator === 'V';
+
+  if (posIndicator === 'P' && tag.length === 1) return 'Preposition';
+  if (posIndicator === 'I' && tag.length === 1) return 'Interjection';
+
+  let result: string[] = [];
+  let caseCode = '', numCode = '', genCode = '', degree = '';
+
+  // POS Identification
+  let isVerb = false;
   let isNounAdjectiveArticle = false;
-  let caseCode = '', numCode = '', genCode = '';
 
   if (posIndicator === 'N') { result.push('Noun'); isNounAdjectiveArticle = true; }
   else if (posIndicator === 'J' || posIndicator === 'A') { result.push('Adjective'); isNounAdjectiveArticle = true; }
   else if (posIndicator === 'D') { result.push('Definite Article'); isNounAdjectiveArticle = true; }
-  else if (posIndicator === 'V') { result.push('Verb'); }
+  else if (posIndicator === 'V') { result.push('Verb'); isVerb = true; }
   else if (posIndicator === 'R') {
     const pronounType = tag.charAt(1);
     const pTypeMap: Record<string, string> = {
@@ -29,16 +49,20 @@ function interpretSingleTag(tag: string): string {
     };
     result.push(pTypeMap[pronounType] || 'Pronoun');
 
-    if (tag.length >= 3) {
-      const person = tag.charAt(2);
-      if (['1', '2', '3'].includes(person)) result.push(person + (person === '1' ? 'st' : person === '2' ? 'nd' : 'rd') + ' Person');
+    let nextIdx = 2;
+    if (tag.length > nextIdx) {
+      const person = tag.charAt(nextIdx);
+      if (['1', '2', '3'].includes(person)) {
+        result.push(person + (person === '1' ? 'st' : person === '2' ? 'nd' : 'rd') + ' Person');
+        nextIdx++;
+      }
     }
-    if (tag.length >= 4) caseCode = tag.charAt(3);
-    if (tag.length >= 5) numCode = tag.charAt(4);
-    if (tag.length >= 6) genCode = tag.charAt(5);
+    if (tag.length > nextIdx) caseCode = tag.charAt(nextIdx++);
+    if (tag.length > nextIdx) numCode = tag.charAt(nextIdx++);
+    if (tag.length > nextIdx) genCode = tag.charAt(nextIdx++);
 
-    if (pronounType === 'P' && tag.length >= 7) {
-      const subType = tag.charAt(6);
+    if (pronounType === 'P' && tag.length > nextIdx) {
+      const subType = tag.charAt(nextIdx);
       if (subType === 'A') result.push('intensive Attributive');
       else if (subType === 'P') result.push('intensive Predicative');
     }
@@ -95,35 +119,30 @@ function interpretSingleTag(tag: string): string {
     if (voiceMap[voice]) result.push(voiceMap[voice]);
     if (moodMap[mood]) result.push(moodMap[mood]);
 
-    if (tag.length >= 5) {
-      const person = tag.charAt(4);
-      if (['1', '2', '3'].includes(person)) result.push(person + (person === '1' ? 'st' : person === '2' ? 'nd' : 'rd') + ' Person');
+    let nextIdx = 4;
+    if (tag.length > nextIdx) {
+      const person = tag.charAt(nextIdx);
+      if (['1', '2', '3'].includes(person)) {
+        result.push(person + (person === '1' ? 'st' : person === '2' ? 'nd' : 'rd') + ' Person');
+        nextIdx++;
+      }
     }
-    if (tag.length >= 6) {
-      numCode = tag.charAt(5);
-    }
-    if (tag.length >= 7) {
-      caseCode = tag.charAt(6);
-    }
-    if (tag.length >= 8) {
-      genCode = tag.charAt(7);
-    }
+    if (tag.length > nextIdx) numCode = tag.charAt(nextIdx++);
+    if (tag.length > nextIdx) caseCode = tag.charAt(nextIdx++);
+    if (tag.length > nextIdx) genCode = tag.charAt(nextIdx++);
   }
 
   // Noun, Adjective, Article processing
   if (isNounAdjectiveArticle) {
-    if (posIndicator === 'N' || posIndicator === 'J' || posIndicator === 'A' || posIndicator === 'D') {
-      if (tag.length >= 4) {
-        caseCode = tag.charAt(1);
-        numCode = tag.charAt(2);
-        genCode = tag.charAt(3);
-      }
-      if ((posIndicator === 'J' || posIndicator === 'A') && tag.length >= 5) {
-        const degree = tag.charAt(4);
-        if (degree === 'C') result.push('Comparative');
-        else if (degree === 'S') result.push('Superlative');
-        else if (degree === 'O') result.push('Other');
-      }
+    if (tag.length >= 4) {
+      caseCode = tag.charAt(1);
+      numCode = tag.charAt(2);
+      genCode = tag.charAt(3);
+    }
+    if ((posIndicator === 'J' || posIndicator === 'A') && tag.length >= 5) {
+      const degreeCode = tag.charAt(4);
+      const degreeMap: Record<string, string> = { C: 'Comparative', S: 'Superlative', O: 'Other' };
+      degree = degreeMap[degreeCode] || '';
     }
   }
 
@@ -140,6 +159,9 @@ function interpretSingleTag(tag: string): string {
     const genMap: Record<string, string> = { M: 'Masculine', F: 'Feminine', N: 'Neuter' };
     if (genMap[genCode]) result.push(genMap[genCode]);
   }
+  if (degree) {
+    result.push(degree);
+  }
 
-  return result.length > 0 ? result.join(', ') : tag;
+  return result.length > 0 ? result.join(', ') : rawTag;
 }
