@@ -32,6 +32,11 @@ test('getWordDetailData', () => {
   const wordWithoutStrongs = { ...mockWord, strongs: '' };
   const data2 = getWordDetailData(wordWithoutStrongs);
   assert.strictEqual(data2.strongsDisplay, null);
+
+  // Treat whitespace-only values as missing
+  const wordWithWhitespaceStrongs = { ...mockWord, strongs: '   ' };
+  const data3 = getWordDetailData(wordWithWhitespaceStrongs);
+  assert.strictEqual(data3.strongsDisplay, null);
 });
 
 test('interpretPosTag - Verbs', async (t) => {
@@ -114,5 +119,16 @@ test('interpretPosTag - Edge Cases', async (t) => {
 
   await t.test('Unknown tag', () => {
     assert.strictEqual(interpretPosTag('Z'), 'Z');
+  });
+
+  await t.test('Multiple tags with whitespace and empty segments', () => {
+    assert.strictEqual(
+      interpretPosTag(' N-NSM , , V-AAI-3S '),
+      'Noun, Nominative, Singular, Masculine; Verb, Aorist, Active, Indicative, 3rd Person, Singular'
+    );
+  });
+
+  await t.test('Lowercase tag input', () => {
+    assert.strictEqual(interpretPosTag('n-nsm'), 'Noun, Nominative, Singular, Masculine');
   });
 });

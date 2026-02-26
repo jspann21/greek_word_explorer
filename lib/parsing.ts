@@ -1,9 +1,11 @@
 import type { WordRow } from './types';
 
 export function getWordDetailData(word: WordRow) {
+  const strongs = word.strongs.trim();
+
   return {
     reference: `${word.book_name} ${word.chapter}:${word.verse}`,
-    strongsDisplay: word.strongs ? `G${word.strongs}` : null,
+    strongsDisplay: strongs ? `G${strongs}` : null,
     wordForm: word.word_form,
     lemma: word.lemma,
     gloss: word.gloss,
@@ -13,16 +15,24 @@ export function getWordDetailData(word: WordRow) {
 }
 
 export function interpretPosTag(rawTag: string): string {
-  if (!rawTag) return '';
-  return rawTag.split(',').map(t => interpretSingleTag(t.trim())).join('; ');
+  if (!rawTag.trim()) return '';
+
+  return rawTag
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+    .map(interpretSingleTag)
+    .filter(Boolean)
+    .join('; ');
 }
 
 function interpretSingleTag(rawTag: string): string {
-  if (!rawTag) return '';
+  const trimmedTag = rawTag.trim();
+  if (!trimmedTag) return '';
 
   // Normalize by removing dashes
-  const tag = rawTag.replace(/-/g, '');
-  if (!tag) return rawTag;
+  const tag = trimmedTag.toUpperCase().replace(/-/g, '');
+  if (!tag) return trimmedTag;
 
   const posIndicator = tag.charAt(0);
 
@@ -163,5 +173,5 @@ function interpretSingleTag(rawTag: string): string {
     result.push(degree);
   }
 
-  return result.length > 0 ? result.join(', ') : rawTag;
+  return result.length > 0 ? result.join(', ') : trimmedTag;
 }
