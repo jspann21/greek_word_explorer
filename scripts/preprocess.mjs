@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS words (
   strongs TEXT,
   louw TEXT
 );
-CREATE INDEX IF NOT EXISTS idx_words_lemma ON words(lemma);
+CREATE INDEX IF NOT EXISTS idx_words_lemma_pos ON words(lemma, pos_tag);
 CREATE INDEX IF NOT EXISTS idx_words_pos ON words(pos_tag);
 CREATE INDEX IF NOT EXISTS idx_words_loc ON words(book_id, chapter, verse);
 `);
