@@ -14,29 +14,33 @@ const TEXT_DIR = path.join(PUBLIC_DIR, 'text');
 
 export default async function ChapterPage({ params }: { params: Promise<{ book: string; chapter: string }> }) {
   const p = await params;
-  const decodedBook = decodeURIComponent(p.book);
 
-  if (!(await isValidBook(decodedBook))) {
+  try {
+    const decodedBook = decodeURIComponent(p.book);
+
+    if (!(await isValidBook(decodedBook))) {
+      notFound();
+    }
+
+    const bookPath = path.resolve(TEXT_DIR, `${decodedBook}.json`);
+
+    if (!bookPath.startsWith(TEXT_DIR + path.sep)) {
+      notFound();
+    }
+
+    const raw = await readFile(bookPath, 'utf8');
+    const data = JSON.parse(raw) as BookTextFile;
+    const chapterData = data.chapters[String(p.chapter)] ?? { paragraphs: [] };
+
+    return (
+      <>
+        <TextPanel paragraphs={chapterData.paragraphs} />
+        <AnalysisPanel />
+      </>
+    );
+  } catch {
     notFound();
   }
-
-  const bookName = path.basename(decodedBook);
-  const bookPath = path.join(TEXT_DIR, `${bookName}.json`);
-
-  if (!bookPath.startsWith(TEXT_DIR)) {
-    notFound();
-  }
-
-  const raw = await readFile(bookPath, 'utf8');
-  const data = JSON.parse(raw) as BookTextFile;
-  const chapterData = data.chapters[String(p.chapter)] ?? { paragraphs: [] };
-
-  return (
-    <>
-      <TextPanel paragraphs={chapterData.paragraphs} />
-      <AnalysisPanel />
-    </>
-  );
 }
 
 export async function generateStaticParams(): Promise<{ book: string; chapter: string }[]> {
