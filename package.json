@@ -4,7 +4,7 @@
   "description": "",
   "main": "script.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --experimental-strip-types --test lib/*.test.ts",
     "dev": "next dev",
     "build": "npm run preprocess && next build && node scripts/post-build.mjs",
     "prebuild": "node scripts/copy-sql-wasm.mjs",
