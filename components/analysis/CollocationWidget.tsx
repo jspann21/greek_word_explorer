@@ -7,6 +7,7 @@ import Modal from '@/components/ui/Modal';
 import CollocationDetailed from './CollocationDetailed';
 
 interface Colloc { lemma: string; count: number }
+interface CollocRow extends Colloc { side: 'prev' | 'next' }
 
 export default function CollocationWidget({ lemma }: { lemma: string }) {
   const { query } = useDatabase();
@@ -16,24 +17,31 @@ export default function CollocationWidget({ lemma }: { lemma: string }) {
 
   useEffect(() => {
     if (!lemma) { setPrevs([]); setNexts([]); return; }
-    const sqlPrev = `
-      SELECT T2.lemma AS lemma, COUNT(T1.id) AS count
-      FROM words AS T1
-      JOIN words AS T2 ON T1.id = T2.id + 1
-      WHERE T1.lemma = ?
-      GROUP BY T2.lemma
-      ORDER BY count DESC
-      LIMIT 8`;
-    const sqlNext = `
-      SELECT T2.lemma AS lemma, COUNT(T1.id) AS count
-      FROM words AS T1
-      JOIN words AS T2 ON T1.id = T2.id - 1
-      WHERE T1.lemma = ?
-      GROUP BY T2.lemma
-      ORDER BY count DESC
-      LIMIT 8`;
-    setPrevs(query<Colloc>(sqlPrev, [lemma]));
-    setNexts(query<Colloc>(sqlNext, [lemma]));
+    const sql = `
+      WITH prevs AS (
+        SELECT T2.lemma AS lemma, COUNT(T1.id) AS count
+        FROM words AS T1
+        JOIN words AS T2 ON T1.id = T2.id + 1
+        WHERE T1.lemma = ?
+        GROUP BY T2.lemma
+        ORDER BY count DESC
+        LIMIT 8
+      ),
+      nexts AS (
+        SELECT T2.lemma AS lemma, COUNT(T1.id) AS count
+        FROM words AS T1
+        JOIN words AS T2 ON T1.id = T2.id - 1
+        WHERE T1.lemma = ?
+        GROUP BY T2.lemma
+        ORDER BY count DESC
+        LIMIT 8
+      )
+      SELECT 'prev' AS side, lemma, count FROM prevs
+      UNION ALL
+      SELECT 'next' AS side, lemma, count FROM nexts`;
+    const rows = query<CollocRow>(sql, [lemma, lemma]);
+    setPrevs(rows.filter((row) => row.side === 'prev').map(({ lemma: collocLemma, count }) => ({ lemma: collocLemma, count })));
+    setNexts(rows.filter((row) => row.side === 'next').map(({ lemma: collocLemma, count }) => ({ lemma: collocLemma, count })));
   }, [lemma, query]);
 
   if (prevs.length === 0 && nexts.length === 0) return null;
