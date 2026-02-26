@@ -46,6 +46,11 @@ CREATE INDEX IF NOT EXISTS idx_words_loc ON words(book_id, chapter, verse);
 const insertStmt = db.prepare(`INSERT INTO words (
   id, book_id, book_name, chapter, verse, word_form, lemma, pos_tag, gloss, strongs, louw
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+const insertWordsBatch = db.transaction((rows) => {
+  for (const row of rows) {
+    insertStmt.run(...row);
+  }
+});
 
 const bookInfos = [];
 let nextId = 1;
@@ -62,6 +67,7 @@ for (const bookName of booksList) {
   for (const chapter of chapters) {
     const verses = Object.keys(book[chapter]).sort((a,b)=>Number(a)-Number(b));
     const paragraphs = [];
+    const chapterRows = [];
 
     // Read paragraph boundaries
     const parFile = join(PAR_DIR, bookName, `${padChapter(chapter)}-paragraphs.json`);
@@ -94,7 +100,7 @@ for (const bookName of booksList) {
           const bcv = String(w.book_chapter_verse || '');
           const book_id = bcv.slice(0, 2); // 01..27
 
-          insertStmt.run(
+          chapterRows.push([
             nextId,
             book_id,
             bookName,
@@ -106,7 +112,7 @@ for (const bookName of booksList) {
             gloss,
             strongs,
             louw
-          );
+          ]);
 
           paraArr.push({ verse: String(verse), word_id: nextId, text: word_form });
           nextId++;
@@ -115,6 +121,7 @@ for (const bookName of booksList) {
       paragraphs.push(paraArr);
     }
 
+    insertWordsBatch(chapterRows);
     perBookOutput.chapters[String(chapter)] = { paragraphs };
   }
 
