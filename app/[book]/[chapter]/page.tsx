@@ -1,6 +1,8 @@
 import TextPanel from '@/components/TextPanel';
 import AnalysisPanel from '@/components/analysis/AnalysisPanel';
+import { isValidBook } from '@/lib/books';
 import type { BookTextFile } from '@/lib/types';
+import { notFound } from 'next/navigation';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -12,7 +14,19 @@ const TEXT_DIR = path.join(PUBLIC_DIR, 'text');
 
 export default async function ChapterPage({ params }: { params: Promise<{ book: string; chapter: string }> }) {
   const p = await params;
-  const bookPath = path.join(TEXT_DIR, `${decodeURIComponent(p.book)}.json`);
+  const decodedBook = decodeURIComponent(p.book);
+
+  if (!(await isValidBook(decodedBook))) {
+    notFound();
+  }
+
+  const bookName = path.basename(decodedBook);
+  const bookPath = path.join(TEXT_DIR, `${bookName}.json`);
+
+  if (!bookPath.startsWith(TEXT_DIR)) {
+    notFound();
+  }
+
   const raw = await readFile(bookPath, 'utf8');
   const data = JSON.parse(raw) as BookTextFile;
   const chapterData = data.chapters[String(p.chapter)] ?? { paragraphs: [] };
