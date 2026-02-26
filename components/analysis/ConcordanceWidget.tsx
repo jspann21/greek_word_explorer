@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDatabase } from '@/hooks/useDatabase';
 import { Maximize2 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
@@ -9,10 +9,12 @@ import { interpretPosTag } from '@/lib/parsing';
 import { CANONICAL_ORDER } from '@/lib/constants';
 
 interface Row { id: number; book_name: string; chapter: number; verse: number; }
+interface ContextWord { id: number; word_form: string; }
 
 export default function ConcordanceWidget({ lemma, pos_tag }: { lemma: string; pos_tag?: string }) {
   const { query } = useDatabase();
   const [rows, setRows] = useState<Row[]>([]);
+  const [contextsByRowId, setContextsByRowId] = useState<Record<number, ContextWord[]>>({});
   const [selectedPos, setSelectedPos] = useState<string>(pos_tag || '');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,6 +39,46 @@ export default function ConcordanceWidget({ lemma, pos_tag }: { lemma: string; p
 
     setRows(result);
   }, [lemma, selectedPos, query]);
+
+  useEffect(() => {
+    const visibleRows = rows.slice(0, 50);
+    if (visibleRows.length === 0) {
+      setContextsByRowId({});
+      return;
+    }
+
+    const window = 5;
+    const uniqueIds = new Set<number>();
+    for (const row of visibleRows) {
+      for (let offset = -window; offset <= window; offset++) {
+        const id = row.id + offset;
+        if (id > 0) uniqueIds.add(id);
+      }
+    }
+
+    const allIds = Array.from(uniqueIds);
+    const wordsById = new Map<number, ContextWord>();
+    const chunkSize = 900;
+    for (let i = 0; i < allIds.length; i += chunkSize) {
+      const chunk = allIds.slice(i, i + chunkSize);
+      const placeholders = chunk.map(() => '?').join(', ');
+      const sql = `SELECT id, word_form FROM words WHERE id IN (${placeholders})`;
+      const words = query<ContextWord>(sql, chunk);
+      for (const word of words) wordsById.set(word.id, word);
+    }
+
+    const nextContextsByRowId: Record<number, ContextWord[]> = {};
+    for (const row of visibleRows) {
+      const context: ContextWord[] = [];
+      for (let offset = -window; offset <= window; offset++) {
+        const word = wordsById.get(row.id + offset);
+        if (word) context.push(word);
+      }
+      nextContextsByRowId[row.id] = context;
+    }
+
+    setContextsByRowId(nextContextsByRowId);
+  }, [rows, query]);
 
   return (
     <>
@@ -77,7 +119,12 @@ export default function ConcordanceWidget({ lemma, pos_tag }: { lemma: string; p
 
         <div className="max-h-[400px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
           {rows.slice(0, 50).map((r) => (
-            <ConcordanceRow key={r.id} id={r.id} heading={`${r.book_name} ${r.chapter}:${r.verse}`} />
+            <ConcordanceRow
+              key={r.id}
+              id={r.id}
+              heading={`${r.book_name} ${r.chapter}:${r.verse}`}
+              context={contextsByRowId[r.id] ?? []}
+            />
           ))}
           {rows.length > 50 && (
             <div className="text-xs text-center text-muted-foreground py-3 border-t border-border">
@@ -93,16 +140,7 @@ export default function ConcordanceWidget({ lemma, pos_tag }: { lemma: string; p
   );
 }
 
-function ConcordanceRow({ id, heading }: { id: number; heading: string }) {
-  const { query } = useDatabase();
-  const context = useMemo(() => {
-    const window = 5;
-    const minId = id - window;
-    const maxId = id + window;
-    const words = query<{ id: number; word_form: string }>('SELECT id, word_form FROM words WHERE id BETWEEN ? AND ? ORDER BY id', [minId, maxId]);
-    return words;
-  }, [id, query]);
-
+function ConcordanceRow({ id, heading, context }: { id: number; heading: string; context: ContextWord[] }) {
   return (
     <div className="group py-3 px-3 rounded-lg bg-muted/20 hover:bg-muted/40 border border-transparent hover:border-border/50 transition-all cursor-default">
       <div className="flex items-center justify-between mb-2">
