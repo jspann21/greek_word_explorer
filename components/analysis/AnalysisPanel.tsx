@@ -8,7 +8,8 @@ import LemmaDistWidget from './LemmaDistWidget';
 import ConcordanceWidget from './ConcordanceWidget';
 import CollocationWidget from './CollocationWidget';
 import { useSelection } from '@/components/providers/SelectionProvider';
-import { MousePointerClick, X } from 'lucide-react';
+import { CursorClickIcon } from '@/components/icons';
+import { X } from 'lucide-react';
 
 export default function AnalysisPanel() {
   const { query } = useDatabase();
@@ -50,7 +51,7 @@ export default function AnalysisPanel() {
         />
         <div className="flex flex-col items-center justify-center h-full text-center px-8">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 ring-1 ring-primary/20">
-            <MousePointerClick className="w-8 h-8 text-primary/60" />
+            <CursorClickIcon className="w-8 h-8 text-primary/60" />
           </div>
           <h3 className="text-lg font-bold text-foreground mb-2">Select a Word</h3>
           <p className="text-sm text-muted-foreground max-w-[250px] leading-relaxed">
