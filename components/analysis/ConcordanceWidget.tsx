@@ -6,6 +6,7 @@ import { Maximize2 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import ConcordanceDetailed from './ConcordanceDetailed';
 import { interpretPosTag } from '@/lib/parsing';
+import { CANONICAL_ORDER } from '@/lib/constants';
 
 interface Row { id: number; book_name: string; chapter: number; verse: number; }
 
@@ -16,13 +17,6 @@ export default function ConcordanceWidget({ lemma, pos_tag }: { lemma: string; p
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => setSelectedPos(pos_tag || ''), [pos_tag]);
-
-  const CANONICAL_ORDER = [
-    "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1Corinthians", "2Corinthians",
-    "Galatians", "Ephesians", "Philippians", "Colossians", "1Thessalonians", "2Thessalonians",
-    "1Timothy", "2Timothy", "Titus", "Philemon", "Hebrews", "James", "1Peter", "2Peter",
-    "1John", "2John", "3John", "Jude", "Revelation"
-  ];
 
   useEffect(() => {
     if (!lemma) { setRows([]); return; }
