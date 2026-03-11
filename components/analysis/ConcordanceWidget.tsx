@@ -61,9 +61,8 @@ export default function ConcordanceWidget({ lemma, pos_tag }: { lemma: string; p
     const chunkSize = 900;
     for (let i = 0; i < allIds.length; i += chunkSize) {
       const chunk = allIds.slice(i, i + chunkSize);
-      const placeholders = chunk.map(() => '?').join(', ');
-      const sql = `SELECT id, word_form FROM words WHERE id IN (${placeholders})`;
-      const words = query<ContextWord>(sql, chunk);
+      const sql = 'SELECT id, word_form FROM words WHERE id IN (SELECT value FROM json_each(?))';
+      const words = query<ContextWord>(sql, [JSON.stringify(chunk)]);
       for (const word of words) wordsById.set(word.id, word);
     }
 
