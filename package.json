@@ -5,8 +5,8 @@
   "main": "script.js",
   "scripts": {
     "test": "node --experimental-strip-types --test lib/parsing.test.ts components/analysis/WordDetailWidget.test.ts",
-    "dev": "next dev",
-    "build": "npm run preprocess && next build && node scripts/post-build.mjs",
+    "dev": "next dev --webpack",
+    "build": "npm run preprocess && next build --webpack && node scripts/post-build.mjs",
     "prebuild": "node scripts/copy-sql-wasm.mjs",
     "preprocess": "node scripts/preprocess.mjs",
     "start": "next start",
@@ -17,7 +17,7 @@
   "license": "ISC",
   "type": "module",
   "engines": {
-    "node": ">=18.17"
+    "node": ">=20.9.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.15",
@@ -27,7 +27,7 @@
     "@types/sql.js": "^1.4.9",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.38.0",
-    "eslint-config-next": "^15.5.6",
+    "eslint-config-next": "16.3.0-preview.3",
     "postcss": "^8.5.10",
     "tailwindcss": "^4.1.15",
     "typescript": "^5.9.3"
@@ -35,7 +35,7 @@
   "dependencies": {
     "better-sqlite3": "^11.10.0",
     "lucide-react": "^0.574.0",
-    "next": "^15.5.18",
+    "next": "16.3.0-preview.3",
     "next-themes": "^0.4.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
