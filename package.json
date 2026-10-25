@@ -35,13 +35,13 @@
   "dependencies": {
     "better-sqlite3": "^11.10.0",
     "lucide-react": "^0.574.0",
-    "next": "^16.3.8",
+    "next": "^16.4.3",
     "next-themes": "^0.4.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "recharts": "^3.3.0",
     "sql.js": "^1.13.0",
-    "zod": "^4.1.12"
+    "zod": "^4.6.7"
   },
   "overrides": {
     "postcss": "^8.5.11"
